@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>CNA Python Web</title>
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
+    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+    <style>
+        canvas { border: 1px solid black; background: #6495ED; width: 100%; height: auto; max-width: 1280px; }
+    </style>
+</head>
+<body>
+    <h1>CNA Python Template</h1>
+    <canvas id="canvas"></canvas>
+    <script type="py" config='{"packages": ["math", "argparse"]}'>
+        import asyncio
+        from main import main
+        # PyScript will run the main loop here
+        main()
+    </script>
+</body>
+</html>
