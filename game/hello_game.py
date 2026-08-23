@@ -16,18 +16,21 @@ class HelloGame(Game):
         if requested_frames is not None and requested_frames <= 0:
             raise ValueError("requested_frames must be positive")
         self.Graphics = GraphicsDeviceManager(self)
+        self.Content.RootDirectory = "Content"
         self.RequestedFrames = requested_frames
         self.DrawnFrames = 0
         self._animation_seconds = 0.0
         self._velocity = Vector2(104.0, 74.0)
         self._position = Vector2.Zero
         self._logo: Texture2D | None = None
+        self._xnb_logo: Texture2D | None = None
         self._sprite_batch: SpriteBatch | None = None
 
     def LoadContent(self) -> None:
         logo_path = Path(__file__).resolve().parents[1] / "Content" / "logo.png"
         with logo_path.open("rb") as stream:
             self._logo = Texture2D.FromStream(self.GraphicsDevice, stream)
+        self._xnb_logo = self.Content.Load("logo")
         self._sprite_batch = SpriteBatch(self.GraphicsDevice)
         viewport = self.GraphicsDevice.Viewport
         self._position = Vector2(viewport.Width / 2.0, viewport.Height / 2.0)
@@ -79,6 +82,17 @@ class HelloGame(Game):
             rotation,
             origin,
             scale,
+            SpriteEffects.None_,
+            0.0,
+        )
+        self._sprite_batch.Draw(
+            self._xnb_logo,
+            Vector2(32.0, 32.0),
+            None,
+            Color.White,
+            -rotation,
+            Vector2(1.0, 1.0),
+            16.0,
             SpriteEffects.None_,
             0.0,
         )

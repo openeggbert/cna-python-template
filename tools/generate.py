@@ -51,6 +51,7 @@ def main() -> None:
     content = destination / "Content"
     content.mkdir()
     shutil.copyfile(ROOT / "Content/logo.png", content / "logo.png")
+    shutil.copyfile(ROOT / "Content/logo.xnb", content / "logo.xnb")
     pyproject = (ROOT / "pyproject.toml").read_text()
     pyproject = pyproject.replace('name = "cna-python-starter"', f'name = "{distribution_name}"')
     pyproject = pyproject.replace('include = ["game*"]', f'include = ["{module_name}*"]')

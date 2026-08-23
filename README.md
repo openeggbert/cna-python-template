@@ -28,6 +28,7 @@ python3 main.py --frames 120
 
 The success line is printed only after `Game.Run` returns with exactly the
 requested number of CNA-backed `Draw` calls completed. The game decodes the
-raw 128×128 `Content/logo.png` with `Texture2D.FromStream`, polls keyboard,
-mouse, and gamepad, clears Cornflower Blue, and draws the moving, rotating,
-scaling logo with the real SpriteBatch path.
+raw 128×128 `Content/logo.png` with `Texture2D.FromStream` and loads a tiny
+legal synthetic `Content/logo.xnb` through `ContentManager.Load` and the XNB
+Texture2D reader. It polls keyboard, mouse, and gamepad, clears Cornflower Blue,
+and draws both textures with the real SpriteBatch path.
