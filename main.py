@@ -1,14 +1,37 @@
-import sys
+from __future__ import annotations
+
 import argparse
-from game.HelloGame import HelloGame
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--smoke-test", action="store_true", help="Run for a few frames and exit")
-    args = parser.parse_args()
+from game import HelloGame
 
-    game = HelloGame(smoke_test=args.smoke_test)
-    game.Run()
+
+def requested_frames(arguments: argparse.Namespace) -> int | None:
+    selected = sum((arguments.smoke_test, arguments.stability_test, arguments.frames is not None))
+    if selected > 1:
+        raise SystemExit("choose only one of --smoke-test, --stability-test, or --frames")
+    if arguments.smoke_test:
+        return 60
+    if arguments.stability_test:
+        return 600
+    if arguments.frames is not None and arguments.frames <= 0:
+        raise SystemExit("--frames must be positive")
+    return arguments.frames
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Run the real CNA-Python desktop starter")
+    parser.add_argument("--smoke-test", action="store_true", help="draw exactly 60 real frames")
+    parser.add_argument("--stability-test", action="store_true", help="draw exactly 600 real frames")
+    parser.add_argument("--frames", type=int, help="draw exactly N real frames")
+    frames = requested_frames(parser.parse_args())
+    game = HelloGame(frames)
+    with game:
+        game.Run()
+    if frames is not None:
+        if game.DrawnFrames != frames:
+            raise RuntimeError(f"requested {frames} frames but drew {game.DrawnFrames}")
+        print(f"cna-python-template: SUCCESS drew {game.DrawnFrames} real CNA frames")
+
 
 if __name__ == "__main__":
     main()

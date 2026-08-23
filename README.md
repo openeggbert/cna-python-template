@@ -1,53 +1,33 @@
-# cna-python-template
+# CNA-Python desktop starter
 
-> **Status: In progress - NOT YET FUNCTIONAL**
+This is a small real desktop CNA application. It runs through the installed
+`cna-python` package and an external exact CNA C ABI 0.7.0 library. It has no
+fake renderer label, 3D branch, `DrawRect`, Web/Pyodide, Briefcase, Android, or
+mobile claim.
 
+The measured runtime configuration for this milestone is Linux x86-64 with a
+qualified HEADLESS/NULL-audio CNA artifact. A GPU/windowed renderer, Windows,
+and macOS have not yet been verified.
 
-A starter project for **[CNA](https://github.com/openeggbert/cna)** — a reimplementation of the XNA 4.0 game framework, using the **Python binding**.
-
-This template provides a standard XNA-like project structure with support for multiple platforms including Desktop, Android, and Web.
-
-## Features
-
-- **XNA 4.0 API**: Familiar `Initialize`, `LoadContent`, `Update`, and `Draw` pattern in PascalCase.
-- **Adaptive Rendering**: Automatically switches between a 3D rotating cube and a 2D bouncing logo based on renderer capabilities.
-- **Renderer Banner**: Built-in banner showing the active renderer name using an internal bitmap font.
-- **Multi-platform**: Designed to run on Windows, Linux, macOS, Android, and Web.
-- **Smoke Test**: Support for `--smoke-test` to verify basic execution.
-
-## Quick Start
-
-### Desktop (Linux/Windows/macOS)
-
-Ensure you have `cna-python` installed or in your `PYTHONPATH`.
+Build/install the `cna-python` 0.1.0.dev0 wheel, then set an absolute native
+library path:
 
 ```bash
+python3 -m pip install /path/to/cna_python-0.1.0.dev0-py3-none-any.whl
+export CNA_NATIVE_LIBRARY=/absolute/path/to/libcna_c_api.so
 python3 main.py
 ```
 
-### Web
-
-This template is compatible with **PyScript** and **Pyodide**. 
-
-1. Serve the project root with a web server.
-2. Access `index.html` (if provided) or use a PyScript wrapper.
-
-### Android
-
-Mobile support is provided via **Briefcase** (BeeWare) or similar tools.
+Deterministic real-frame modes are:
 
 ```bash
-briefcase dev
+python3 main.py --smoke-test       # exactly 60 successful Draw calls
+python3 main.py --stability-test   # exactly 600 successful Draw calls
+python3 main.py --frames 120
 ```
 
-## Project Structure
-
-- `game/`: Shared game logic.
-  - `HelloGame.py`: The main game class with XNA logic.
-- `Content/`: Game assets (textures, etc.).
-- `main.py`: Entry point for the application.
-- `requirements.txt`: Python dependencies.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+The success line is printed only after `Game.Run` returns with exactly the
+requested number of CNA-backed `Draw` calls completed. The game decodes the
+raw 128×128 `Content/logo.png` with `Texture2D.FromStream`, polls keyboard,
+mouse, and gamepad, clears Cornflower Blue, and draws the moving, rotating,
+scaling logo with the real SpriteBatch path.
