@@ -23,14 +23,25 @@ def main() -> None:
     parser.add_argument("--smoke-test", action="store_true", help="draw exactly 60 real frames")
     parser.add_argument("--stability-test", action="store_true", help="draw exactly 600 real frames")
     parser.add_argument("--frames", type=int, help="draw exactly N real frames")
-    frames = requested_frames(parser.parse_args())
-    game = HelloGame(frames)
+    parser.add_argument("--verify-frame", action="store_true",
+                        help="also read the back buffer and check something was drawn")
+    arguments = parser.parse_args()
+    frames = requested_frames(arguments)
+    game = HelloGame(frames, verify_frame=arguments.verify_frame)
     with game:
         game.Run()
     if frames is not None:
         if game.DrawnFrames != frames:
             raise RuntimeError(f"requested {frames} frames but drew {game.DrawnFrames}")
         print(f"cna-python-template: SUCCESS drew {game.DrawnFrames} real CNA frames")
+    if arguments.verify_frame:
+        if not getattr(game, "FrameVerificationAvailable", False):
+            print("cna-python-template: FRAME_VERIFICATION=unavailable "
+                  "(this backend has no back-buffer pixel storage)")
+        elif game.FrameVerified:
+            print("cna-python-template: FRAME_VERIFICATION=drawn")
+        else:
+            raise RuntimeError("the frame contained nothing but the clear colour")
 
 
 if __name__ == "__main__":

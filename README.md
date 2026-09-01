@@ -1,13 +1,14 @@
 # CNA-Python desktop starter
 
 This is a small real desktop CNA application. It runs through the installed
-`cna-python` package and an external exact CNA C ABI 0.7.0 library. It has no
-fake renderer label, 3D branch, `DrawRect`, Web/Pyodide, Briefcase, Android, or
+`cna-python` package and an external CNA `0.21.x` C ABI library. It has no fake
+renderer label, 3D branch, `DrawRect`, Web/Pyodide, Briefcase, Android, or
 mobile claim.
 
-The measured runtime configuration for this milestone is Linux x86-64 with a
-qualified HEADLESS/NULL-audio CNA artifact. A GPU/windowed renderer, Windows,
-and macOS have not yet been verified.
+It is qualified on Linux x86-64 against two CNA artifacts: a non-windowed
+control that does not rasterize, and an OPENGLES3 renderer that does. Both run
+60 and 600 real frames from the installed wheel. Windows and macOS have not been
+verified.
 
 Build/install the `cna-python` 0.1.0.dev0 wheel, then set an absolute native
 library path:
@@ -32,3 +33,9 @@ raw 128×128 `Content/logo.png` with `Texture2D.FromStream` and loads a tiny
 legal synthetic `Content/logo.xnb` through `ContentManager.Load` and the XNB
 Texture2D reader. It polls keyboard, mouse, and gamepad, clears Cornflower Blue,
 and draws both textures with the real SpriteBatch path.
+
+`--verify-frame` additionally reads the back buffer after the last frame and
+checks that something was actually drawn over the clear colour. A backend with
+no pixel storage refuses that read, and the check reports it as unavailable
+rather than passing: on such a backend the frame count is the claim, and it does
+not mean pixels.

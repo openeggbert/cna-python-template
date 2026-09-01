@@ -11,10 +11,16 @@ from Microsoft.Xna.Framework.Input import ButtonState, Buttons, GamePad, Keyboar
 class HelloGame(Game):
     """Small real CNA 2D game; there is no simulated or managed-only render path."""
 
-    def __init__(self, requested_frames: int | None = None) -> None:
+    def __init__(self, requested_frames: int | None = None, *,
+                 verify_frame: bool = False) -> None:
         super().__init__()
         if requested_frames is not None and requested_frames <= 0:
             raise ValueError("requested_frames must be positive")
+        self.VerifyFrame = verify_frame
+        #: None until checked; True/False once a back buffer could be read.
+        self.FrameVerified: bool | None = None
+        #: False until a back-buffer read succeeds on this backend.
+        self.FrameVerificationAvailable = False
         self.Graphics = GraphicsDeviceManager(self)
         self.Content.RootDirectory = "Content"
         self.RequestedFrames = requested_frames
@@ -43,7 +49,8 @@ class HelloGame(Game):
             self.Exit()
 
         # Polling mouse/gamepad is part of the real canary. Connected input may
-        # influence motion; HEADLESS legitimately reports no device/buttons.
+        # influence motion; a backend with no input device legitimately reports
+        # none, which is not a failure.
         speed = 1.5 if mouse.LeftButton is ButtonState.Pressed else 1.0
         if gamepad.IsConnected and gamepad.IsButtonDown(Buttons.A):
             speed = 2.0
@@ -98,6 +105,8 @@ class HelloGame(Game):
         )
         self._sprite_batch.End()
         self.DrawnFrames += 1
+        if self.VerifyFrame and self.FrameVerified is None:
+            self._verify_drawn_pixels()
         if self.RequestedFrames is not None and self.DrawnFrames == self.RequestedFrames:
             self.Exit()
 
@@ -106,3 +115,24 @@ class HelloGame(Game):
             self._sprite_batch.Dispose()
         if self._logo is not None:
             self._logo.Dispose()
+
+    def _verify_drawn_pixels(self) -> None:
+        """Checks that the frame really contains something other than the clear.
+
+        A frame count says Draw returned, not that anything reached a pixel. A
+        backend with no pixel storage refuses the read, and that is reported as
+        unavailable rather than quietly passing: on such a backend the count is
+        the whole claim.
+        """
+        device = self.GraphicsDevice
+        viewport = device.Viewport
+        pixels = [Color(0, 0, 0, 0)] * (viewport.Width * viewport.Height)
+        try:
+            device.GetBackBufferData(pixels)
+        except Exception:
+            self.FrameVerified = False
+            self.FrameVerificationAvailable = False
+            return
+        self.FrameVerificationAvailable = True
+        # The logo is drawn over Cornflower Blue, so at least one pixel must differ.
+        self.FrameVerified = any(pixel != Color.CornflowerBlue for pixel in pixels)
