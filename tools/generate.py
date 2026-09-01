@@ -45,7 +45,10 @@ def main() -> None:
     (module / "game.py").write_text(source)
     (module / "__init__.py").write_text(f"from .game import {game_class}\n\n__all__ = [\"{game_class}\"]\n")
     main_source = (ROOT / "main.py").read_text().replace("from game import HelloGame", f"from {module_name} import {game_class}")
-    main_source = main_source.replace("HelloGame(frames)", f"{game_class}(frames)")
+    # Rename every use of the class, not one call spelling: matching a single call
+    # form leaves the name behind the moment the call gains an argument, and the
+    # generated consumer then fails at run time with an undefined name.
+    main_source = re.sub(r"\bHelloGame\b", game_class, main_source)
     main_source = main_source.replace("cna-python-template:", f"{distribution_name}:")
     (destination / "main.py").write_text(main_source)
     content = destination / "Content"
