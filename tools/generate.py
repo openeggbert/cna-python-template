@@ -60,6 +60,12 @@ def main() -> None:
     verify = (ROOT / "tools/verify_cnb.py").read_text()
     verify = verify.replace("cna-python-template:", f"{distribution_name}:")
     (tools / "verify_cnb.py").write_text(verify)
+    # `--verify-engine` travels too, for the same reason: a generated project
+    # should be able to prove the engine extension reaches it from an installed
+    # wheel with no source checkout on its path.
+    verify_engine = (ROOT / "tools/verify_engine.py").read_text()
+    verify_engine = verify_engine.replace("cna-python-template:", f"{distribution_name}:")
+    (tools / "verify_engine.py").write_text(verify_engine)
     content = destination / "Content"
     content.mkdir()
     shutil.copyfile(ROOT / "Content/logo.png", content / "logo.png")

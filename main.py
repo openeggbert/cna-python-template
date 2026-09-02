@@ -28,7 +28,18 @@ def main() -> None:
     parser.add_argument("--verify-cnb", action="store_true",
                         help="compile and decode one .cnj asset through "
                              "cna.extensions.content, then exit without starting the game")
+    parser.add_argument("--verify-engine", action="store_true",
+                        help="check the CNA engine layer through cna.extensions.engine, "
+                             "then exit without starting the game")
     arguments = parser.parse_args()
+    if arguments.verify_engine:
+        # Separate for the same reason --verify-cnb is: the engine layer is a
+        # CNA-only rendering vocabulary, a game drawing sprites never touches it,
+        # and a CNA build may be configured without one at all.
+        from tools.verify_engine import run as verify_engine
+
+        verify_engine()
+        return
     if arguments.verify_cnb:
         # A separate check on purpose: `.cnb` is CNA's compiled content format,
         # and a game that ships `.xnb` or loose files never touches it. The
