@@ -51,6 +51,15 @@ def main() -> None:
     main_source = re.sub(r"\bHelloGame\b", game_class, main_source)
     main_source = main_source.replace("cna-python-template:", f"{distribution_name}:")
     (destination / "main.py").write_text(main_source)
+    # The optional `--verify-cnb` check travels with the consumer, so a generated
+    # project can prove the CNA content extension reaches it from an installed
+    # wheel with no source checkout on its path.
+    tools = destination / "tools"
+    tools.mkdir()
+    (tools / "__init__.py").write_text((ROOT / "tools/__init__.py").read_text())
+    verify = (ROOT / "tools/verify_cnb.py").read_text()
+    verify = verify.replace("cna-python-template:", f"{distribution_name}:")
+    (tools / "verify_cnb.py").write_text(verify)
     content = destination / "Content"
     content.mkdir()
     shutil.copyfile(ROOT / "Content/logo.png", content / "logo.png")

@@ -25,7 +25,18 @@ def main() -> None:
     parser.add_argument("--frames", type=int, help="draw exactly N real frames")
     parser.add_argument("--verify-frame", action="store_true",
                         help="also read the back buffer and check something was drawn")
+    parser.add_argument("--verify-cnb", action="store_true",
+                        help="compile and decode one .cnj asset through "
+                             "cna.extensions.content, then exit without starting the game")
     arguments = parser.parse_args()
+    if arguments.verify_cnb:
+        # A separate check on purpose: `.cnb` is CNA's compiled content format,
+        # and a game that ships `.xnb` or loose files never touches it. The
+        # 60- and 600-frame runs must not need it.
+        from tools.verify_cnb import run as verify_cnb
+
+        verify_cnb()
+        return
     frames = requested_frames(arguments)
     game = HelloGame(frames, verify_frame=arguments.verify_frame)
     with game:
